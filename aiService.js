@@ -1,30 +1,50 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+
 const genAI = new GoogleGenerativeAI(
     process.env.GEMINI_API_KEY
 );
+
+
 
 async function generateEventPlan(userPrompt) {
 
     try {
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash"
+
+        const model =
+        genAI.getGenerativeModel({
+
+            model:"gemini-2.0-flash"
+
         });
 
+
+
         const prompt = `
+
 You are an AI Event Planner.
 
-User Request:
+Create a professional event plan.
+
+User Details:
+
 ${userPrompt}
 
-Create a detailed event plan.
 
-Rules:
-- Do not use markdown
-- Do not use # or *
-- Use plain text only
-- Keep the response clear and professional
+Output rules:
+
+Do not use markdown.
+
+Do not use symbols like:
+#
+*
+**
+
+Use simple plain text.
+
+Use clear headings.
+
 
 Include:
 
@@ -39,21 +59,48 @@ Food Suggestions
 Timeline
 
 Entertainment Ideas
+
 `;
 
+
         const result =
-            await model.generateContent(prompt);
+        await model.generateContent(prompt);
 
-        return result.response.text();
 
-    } catch (error) {
 
-        console.log("Gemini Error:", error);
+        const response =
+        result.response.text();
 
-        return "Unable to generate event plan.";
+
+
+        return response;
+
+
+
     }
+    catch(error){
+
+
+        console.log(
+            "Gemini Error:",
+            error.message
+        );
+
+
+        return `
+AI Event Planner is temporarily unavailable.
+
+Please try again after some time.
+`;
+
+    }
+
 }
 
+
+
 module.exports = {
+
     generateEventPlan
+
 };
