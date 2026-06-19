@@ -91,6 +91,48 @@ Entertainment Ideas
 AI Event Planner is temporarily unavailable.
 
 Please try again after some time.
+suggestions:
+
+Budget Suggestions
+
+Venue: 30%
+Food: 40%
+Decoration: 20%
+Other: 10%
+
+
+Venue Ideas
+
+Choose a venue based on guest count and location.
+
+
+Food Suggestions
+
+Welcome Drinks
+Starter
+Main Course
+Dessert
+
+
+Timeline
+
+Morning:
+Event setup
+
+Afternoon:
+Main event activities
+
+Evening:
+Entertainment and closing
+
+
+Entertainment Ideas
+
+Music
+Photography
+Games
+Guest activities
+
 `;
 
     }
