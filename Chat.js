@@ -8,30 +8,25 @@ const chatSchema = new mongoose.Schema({
         required:true
     },
 
-
     chatId:{
         type:String,
         required:true
     },
-
 
     title:{
         type:String,
         default:"New Chat"
     },
 
-
     role:{
         type:String,
         required:true
     },
 
-
     text:{
         type:String,
         required:true
     }
-
 
 },{
     timestamps:true
