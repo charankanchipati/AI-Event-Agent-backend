@@ -1,21 +1,14 @@
 
 const {GoogleGenerativeAI}=require("@google/generative-ai");
-const currentDateTime = new Date();
+// const currentDateTime = new Date();
 
-const today =
-currentDateTime.toLocaleDateString("en-IN",{
-timeZone:"Asia/Kolkata"
-}
-);
 
-const currentTime =
-currentDateTime.toLocaleTimeString("en-IN");
-// const today = new Date().toLocaleString(
-// "en-IN",
-// {
-// timeZone:"Asia/Kolkata"
-// }
-// );
+const today = new Date().toLocaleDateString();
+
+const currentYear = new Date().getFullYear();
+// const currentTime =
+// currentDateTime.toLocaleTimeString("en-IN");
+
 const genAI =
 new GoogleGenerativeAI(
 process.env.GEMINI_API_KEY
@@ -66,6 +59,19 @@ const prompt = `
 
 
 You are an AI Event Planner chatbot.
+CURRENT DATE:
+
+${today}
+
+
+IMPORTANT WEATHER RULE:
+
+- Weather must be based on the EVENT DATE.
+- Do not use current month.
+- Do not guess.
+- If event date is October, provide October weather.
+- If event date is missing, ask for event date.
+
 Current Date:
 TIMELINE RULE:
 
