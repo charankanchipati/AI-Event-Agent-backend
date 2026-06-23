@@ -1,16 +1,13 @@
 require("dotenv").config();
-
+const { chatWithAI } = require("./aiService");
 
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
 
-const {
-getEventPlanningContext
-}=require("./datePlanner");
+const authRoutes = require("./routes/auth");
 
-const { chatWithAI } = require("./aiService");
 const Chat = require("./Chat");
 
 
@@ -21,36 +18,52 @@ const app = express();
 
 // Middleware
 
-app.use(cors());
+app.use(cors({
+
+origin:"*"
+
+}));
 
 app.use(express.json());
 
 
 
+// Auth
 
-// MongoDB Connection
+app.use("/api/auth",authRoutes);
 
 
-mongoose.connect(process.env.MONGO_URI, {
-    serverSelectionTimeoutMS: 30000
-})
+
+
+
+
+// MongoDB
+
+
+mongoose.connect(
+process.env.MONGO_URI,
+{
+serverSelectionTimeoutMS:30000
+}
+
+)
 
 .then(()=>{
 
-    console.log("MongoDB Connected");
+console.log("MongoDB Connected");
 
 })
 
 .catch((error)=>{
 
 
-    console.log(
+console.log(
 
-        "MongoDB Error:",
+"MongoDB Error:",
 
-        error.message
+error.message
 
-    );
+);
 
 
 });
@@ -60,264 +73,19 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 
-// Test API
+
+
+// TEST
 
 
 app.get("/",(req,res)=>{
 
 
-    res.send(
-        "AI Event Planner Backend Running"
-    );
-
-
-});
-
-
-
-
-
-
-
-// ===============================
-// SEND MESSAGE
-// ===============================
-
-
-app.post("/api/chat", async(req,res)=>{
-
-
-try{
-
-
-const {
-
-    userId,
-
-    chatId,
-
-    message
-
-
-}=req.body;
-
-
-
-
-
-if(!userId || !message){
-
-
-return res.json({
-
-
-reply:"Please enter message"
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-// Get old chat history
-
-
-const oldChats = await Chat.find({
-
-
-    userId:userId,
-
-    chatId:chatId
-
-
-})
-
-.sort({
-
-    createdAt:1
-
-});
-
-
-
-
-
-
-let history = oldChats.map(chat=>({
-
-
-    role:chat.role,
-
-
-    text:chat.text
-
-
-}));
-
-
-
-
-
-
-
-
-// Save user message
-
-
-await Chat.create({
-
-
-    userId:userId,
-
-chatId:chatId,
-
-title:message.substring(0,30),
-
-role:"user",
-
-text:message
-
-
-});
-
-
-
-
-
-
-history.push({
-
-
-    role:"user",
-
-
-    text:message
-
-
-});
-
-
-
-
-
-
-
-
-
-// AI Generate Response
-
-
-const dateContext =
-getEventPlanningContext(message);
-
-
-
-history.unshift({
-
-role:"system",
-
-text:
-dateContext
-
-});
-mongoose.connect(process.env.MONGO_URI,{
-    serverSelectionTimeoutMS:30000,
-    tls:true
-})
-.then(()=>{
-    console.log("MongoDB Connected");
-})
-.catch((error)=>{
-    console.log(
-        "MongoDB Error:",
-        error.message
-    );
-});
-
-
-
-const reply =
-await chatWithAI(history);
-
-
-
-
-
-
-
-// Save AI response
-
-
-await Chat.create({
-
-
-    userId:userId,
-
-
-    chatId:chatId,
-
-
-    role:"assistant",
-
-
-    text:reply
-
-
-});
-
-
-
-
-
-
-
-res.json({
-
-
-    reply:reply
-
-
-});
-
-
-
-
-
-
-}
-
-catch(error){
-
-
-console.log(
-
-    "Server Error:",
-
-    error
-
+res.send(
+"AI Event Planner Backend Running"
 );
 
 
-
-res.status(500).json({
-
-
-reply:"Something went wrong"
-
-
-});
-
-
-}
-
-
-
 });
 
 
@@ -329,13 +97,14 @@ reply:"Something went wrong"
 
 
 
+// =============================
+// GET ALL CHAT HISTORY SIDEBAR
+// =============================
 
-// ===============================
-// LOAD CHAT HISTORY
-// ===============================
 
-
-app.get("/api/chats/:userId/:chatId", async(req,res)=>{
+app.get(
+"/api/chats/:userId",
+async(req,res)=>{
 
 
 try{
@@ -343,11 +112,131 @@ try{
 
 const chats = await Chat.find({
 
+userId:req.params.userId
+
+
+})
+
+.sort({
+
+createdAt:-1
+
+});
+
+
+
+
+// remove duplicate chats
+
+
+const history=[];
+
+
+const ids=new Set();
+
+
+
+chats.forEach(chat=>{
+
+
+if(!ids.has(chat.chatId)){
+
+
+
+history.push({
+
+
+chatId:chat.chatId,
+
+
+title:
+chat.title ||
+"AI Event Planner Help"
+
+
+
+});
+
+
+
+ids.add(chat.chatId);
+
+
+
+}
+
+
+
+});
+
+
+
+res.json(history);
+
+
+
+}
+
+
+
+catch(error){
+
+
+
+console.log(
+"History error:",
+error
+);
+
+
+
+res.status(500).json({
+
+error:"History loading failed"
+
+});
+
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+
+
+// =============================
+// LOAD ONE CHAT
+// =============================
+
+
+app.get(
+
+"/api/chats/:userId/:chatId",
+
+async(req,res)=>{
+
+
+try{
+
+
+const messages = await Chat.find({
+
+
 userId:req.params.userId,
+
 
 chatId:req.params.chatId
 
+
 })
+
 .sort({
 
 createdAt:1
@@ -356,16 +245,19 @@ createdAt:1
 
 
 
-res.json(chats);
+res.json(messages);
 
 
 
 }
 
+
 catch(error){
 
 
+
 console.log(error);
+
 
 
 res.status(500).json({
@@ -380,379 +272,220 @@ error:"Cannot load chat"
 
 });
 
+// =============================
+// AI CHAT API
+// =============================
+
+
+app.post(
+"/api/chat",
+async(req,res)=>{
+
+
+try{
+
+
+const {
+userId,
+chatId,
+message
+
+}=req.body;
+
+
+
+
+// call Gemini
+
+const reply = await chatWithAI(
+
+[],
+
+message,
+
+{},
+
+[],
+
+[]
+
+);
+
+
+
+
+// save chat
+
+await Chat.create({
+
+
+userId:userId,
+
+
+chatId:chatId,
+
+
+role:"user",
+
+
+text:message
+
+
+});
+
+
+
+await Chat.create({
+
+
+userId:userId,
+
+
+chatId:chatId,
+
+
+role:"assistant",
+
+
+text:reply
+
+
+});
+
+
+
+
+
+res.json({
+
+reply:reply
+
+});
+
+
+
+
+}
+
+catch(error){
+
+
+console.log(
+
+"Chat API Error:",
+
+error
+
+);
+
+
+
+res.status(500).json({
+
+error:"AI service failed"
+
+});
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+
+
+// =============================
+// SAVE CHAT (FOR CHATBOX)
+// =============================
+
+
+app.post(
+
+"/api/chats",
+
+async(req,res)=>{
+
+
+try{
+
+
+const chat = new Chat(req.body);
+
+
+
+await chat.save();
+
+
+
+res.json(chat);
+
+
+
+}
+
+
+catch(error){
+
+
+
+console.log(error);
+
+
+
+res.status(500).json({
+
+error:"Chat save failed"
+
+});
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+
+
 
 
 // SERVER START
 
 
-// const PORT = process.env.PORT || 5002;
+const PORT =
+process.env.PORT || 5002;
 
 
 
-// const PORT = process.env.PORT || 5002;
+app.listen(
 
+PORT,
 
-// app.listen(PORT,"0.0.0.0",()=>{
+"0.0.0.0",
 
-// console.log(
-// `Server running on port ${PORT}`
-// );
+()=>{
 
-// });
-const PORT = process.env.PORT || 5002;
-
-
-app.listen(PORT,"0.0.0.0",()=>{
 
 console.log(
+
 `Server running on port ${PORT}`
+
 );
 
-});
 
+}
 
-module.exports = app;
+);
 
-// require("dotenv").config();
-// const mongoose = require("mongoose"); //db
-// const express = require("express");
-// const cors = require("cors");
-
-// const { chatWithAI } = require("./aiService");
-
-// const app = express();
-
-// app.use(cors());
-
-// app.use(express.json());
-
-// mongoose.connect(process.env.MONGO_URI) //db connection
-// .then(() => {
-//     console.log("MongoDB Connected");
-// })
-// .catch((error) => {
-//     console.log("MongoDB Error:", error.message);
-// });
-
-// // temporary memory
-
-// const conversations = {};
-
-// app.get("/",(req,res)=>{
-
-//     res.send("AI Event Planner Backend Running");
-
-// });
-
-// app.post("/api/chat", async(req,res)=>{
-
-// try{
-
-// const {userId,message}=req.body;
-
-// if(!conversations[userId]){
-
-//     conversations[userId]=[];
-
-// }
-
-// // save user message
-
-// conversations[userId].push({
-
-//     role:"user",
-
-//     text:message
-
-// });
-
-// const reply =
-// await chatWithAI(
-//     conversations[userId]
-// );
-
-// // save AI reply
-
-// conversations[userId].push({
-
-//     role:"assistant",
-
-//     text:reply
-
-// });
-
-// res.json({
-
-//     reply:reply
-
-// });
-
-// }
-
-// catch(error){
-
-// console.log(error);
-
-// res.status(500).json({
-
-// reply:"Something went wrong"
-
-// });
-
-// }
-
-// });
-
-// mongoose.connect(process.env.MONGO_URI) //db connection
-// .then(()=>{
-
-// console.log("MongoDB Connected");
-
-// })
-// .catch((error)=>{
-
-// console.log("MongoDB Error:",error);
-
-// }); //end of db connection
-
-// const PORT =
-// process.env.PORT || 5002;
-
-// app.listen(PORT,()=>{
-
-// console.log(
-// `Server running on port ${PORT}`
-// );
-
-// });
-// require("dotenv").config();
-
-// const express = require("express");
-// const cors = require("cors");
-
-// const { generateEventPlan } = require("./aiService");
-
-// const app = express();
-
-// app.use(cors());
-
-// app.use(express.json());
-
-// // temporary chat memory
-
-// const chatHistory = {};
-
-// app.get("/", (req, res) => {
-
-//     res.send("AI Event Planner Backend Running");
-
-// });
-
-// app.post("/api/chat", async (req, res) => {
-
-//     try {
-
-//         const { userId, message } = req.body;
-
-//         if (!userId || !message) {
-
-//             return res.json({
-
-//                 reply: "Please enter a message"
-
-//             });
-
-//         }
-
-//         // create new user chat
-
-//         if (!chatHistory[userId]) {
-
-//             chatHistory[userId] = [];
-
-//         }
-
-//         // save user message
-
-//         chatHistory[userId].push({
-
-//             role: "User",
-
-//             text: message
-
-//         });
-
-//         // send conversation to AI
-
-//         const reply =
-//             await generateEventPlan(
-//                 chatHistory[userId]
-//             );
-
-//         // save AI response
-
-//         chatHistory[userId].push({
-
-//             role: "AI",
-
-//             text: reply
-
-//         });
-
-//         res.json({
-
-//             reply: reply
-
-//         });
-
-//     }
-
-//     catch(error){
-
-//         console.log(
-//             "Server Error:",
-//             error
-//         );
-
-//         res.status(500).json({
-
-//             reply:
-//             "Something went wrong"
-
-//         });
-
-//     }
-
-// });
-
-// const PORT = process.env.PORT || 5002;
-
-// app.listen(PORT,()=>{
-
-//     console.log(
-//         `Server running on port ${PORT}`
-//     );
-
-// });
-// require("dotenv").config();
-
-// const express = require("express");
-// const cors = require("cors");
-
-// const { generateEventPlan } =
-// require("./aiService");
-
-// const app = express();
-
-// app.use(cors());
-// app.use(express.json());
-
-// const PORT = process.env.PORT || 5002;
-
-// const sessions = {};
-
-// function createSession(userId){
-
-//     sessions[userId] = {
-
-//         step:0,
-
-//         answers:{},
-
-//         history:[]
-
-//     };
-
-// }
-
-// app.get("/", (req, res) => {
-//     res.send("AI Event Planner Backend Running");
-// });
-
-// app.post("/api/chat", async (req,res)=>{
-
-//     const {message}=req.body;
-
-//     const text = message.toLowerCase();
-
-//     // Greeting
-//     if(
-//         text.includes("hi") ||
-//         text.includes("hello") ||
-//         text.includes("hey")
-//     ){
-
-//         return res.json({
-
-//             reply:
-// `Hello 👋 Welcome to AI Event Planner.
-
-// I can help you plan:
-
-// Wedding
-// Birthday Party
-// Corporate Event
-// College Event
-
-// What type of event would you like to plan?`
-
-//         });
-
-//     }
-
-//     try{
-
-//         const reply =
-//         await generateEventPlan(message);
-
-//         res.json({
-
-//             reply
-
-//         });
-
-//     }
-//     catch(error){
-
-//         console.log(error);
-
-//         res.json({
-
-//             reply:
-//             "Sorry, I am unable to respond right now."
-
-//         });
-
-//     }
-
-// });
-
-// app.get("/api/history/:userId",(req,res)=>{
-
-//     const userId =
-//     req.params.userId;
-
-//     if(!sessions[userId]){
-
-//         return res.json({
-
-//             history:[]
-
-//         });
-
-//     }
-
-//     res.json({
-
-//         history:
-//         sessions[userId].history
-
-//     });
-
-// });
-// app.listen(PORT, () => {
-
-//     console.log(
-//         `Server Running On Port ${PORT}`
-//     );
-// });

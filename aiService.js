@@ -1,6 +1,21 @@
+
 const {GoogleGenerativeAI}=require("@google/generative-ai");
+const currentDateTime = new Date();
 
+const today =
+currentDateTime.toLocaleDateString("en-IN",{
+timeZone:"Asia/Kolkata"
+}
+);
 
+const currentTime =
+currentDateTime.toLocaleTimeString("en-IN");
+// const today = new Date().toLocaleString(
+// "en-IN",
+// {
+// timeZone:"Asia/Kolkata"
+// }
+// );
 const genAI =
 new GoogleGenerativeAI(
 process.env.GEMINI_API_KEY
@@ -8,7 +23,9 @@ process.env.GEMINI_API_KEY
 
 
 
-async function chatWithAI(history){
+async function chatWithAI(history, message,savedMemory,
+weather,
+venues){
 
 
 try{
@@ -17,7 +34,7 @@ try{
 const model =
 genAI.getGenerativeModel({
 
-model:"gemini-1.5-flash"
+model:"gemini-2.5-flash"
 
 });
 
@@ -49,6 +66,227 @@ const prompt = `
 
 
 You are an AI Event Planner chatbot.
+Current Date:
+TIMELINE RULE:
+
+Always compare today's date with event date.
+
+Current date:
+
+${currentDateTime}
+
+
+If event date is within 7 days:
+
+DO NOT create monthly planning.
+
+Create only short preparation timeline.
+
+
+Example:
+
+
+Today:
+23/06/2026
+
+
+Event:
+24/06/2026
+
+
+
+Output:
+
+
+⏰ TIMELINE
+
+
+• 23/06/2026:
+Confirm venue, food, guests and final arrangements.
+
+
+• 24/06/2026:
+Event day - Complete decoration and enjoy celebration.
+
+
+
+
+
+
+If event is after many weeks/months:
+
+Then create:
+
+• 1 month before
+• 2 weeks before
+• 1 week before
+• Event day
+
+
+Never create old dates before today.
+
+Never create past dates.
+
+${today}
+
+
+Current Time:
+
+${currentTime}
+
+Your job:
+
+1. Create complete event plans.
+
+Include:
+
+- Event summary
+- Timeline
+- Budget breakdown
+- Venue suggestions
+- Food plan
+- Decoration plan
+- Guest management
+
+
+Remember user preferences:
+${history}
+
+
+
+Always give structured answers.
+
+Format:
+
+
+EVENT PLAN
+
+Event:
+Date:
+
+Timeline:
+
+Budget:
+
+Venue:
+
+Food:
+
+Decoration:
+
+Recommendations:
+
+
+Create complete event plans.
+
+
+IMPORTANT:
+
+Always answer in sections.
+
+Use headings and bullet points.
+
+Never write long paragraphs.
+
+
+
+Format exactly:
+
+
+
+🎉 EVENT PLAN
+
+Event:
+-
+
+
+
+
+👥 GUEST DETAILS
+
+•
+
+
+
+
+📍 VENUE
+
+•
+
+
+
+
+⏰ TIMELINE
+
+•
+
+•
+
+
+
+💰 BUDGET
+
+•
+
+•
+
+
+
+🍴 FOOD PLAN
+
+•
+
+•
+
+
+
+🎨 DECORATION
+
+•
+
+•
+
+
+
+🌤️ WEATHER
+
+•
+
+
+
+✅ RECOMMENDATIONS
+
+•
+
+•
+
+
+
+User request:
+
+${message}
+
+
+
+User memory:
+
+${JSON.stringify(savedMemory)}
+
+
+
+Weather:
+
+${JSON.stringify(weather)}
+
+
+
+Venues:
+
+${venues.join(", ")}
+
+
+
+
 
 
 Conversation:
@@ -194,6 +432,14 @@ Additional Tips:
 
 •
 
+Do not use:
+
+#
+
+*
+
+markdown
+
 
 `;
 
@@ -201,16 +447,59 @@ Additional Tips:
 
 
 
-const result =
+
+let result;
+
+
+try{
+
+
+result =
 await model.generateContent(prompt);
 
 
+}
+catch(error){
 
-return result.response.text();
 
+console.log(
+"Gemini first try failed:",
+error.message
+);
+
+
+
+await new Promise(resolve =>
+setTimeout(resolve,3000)
+);
+
+
+
+result =
+await model.generateContent(prompt);
 
 
 }
+
+
+
+let answer =
+result.response.text();
+
+
+// remove markdown symbols
+
+answer =
+answer
+.replace(/\*/g,"")
+.replace(/#/g,"")
+.trim();
+
+
+
+return answer;
+}
+
 
 
 catch(error){
