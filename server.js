@@ -93,13 +93,13 @@ error.message
 // TEST
 
 
-app.get("/",(req,res)=>{
+app.get("/api/test",(req,res)=>{
 
+res.json({
 
-res.send(
-"AI Event Planner Backend Running"
-);
+message:"Backend API working"
 
+});
 
 });
 
