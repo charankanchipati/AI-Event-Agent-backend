@@ -1,139 +1,139 @@
-const express = require("express");
-const router = express.Router();
+        const express = require("express");
+        const router = express.Router();
 
-const User = require("../models/User");
+        const User = require("../models/User");
 
 
-// REGISTER
+        // REGISTER
 
-router.post("/register", async(req,res)=>{
+        router.post("/register", async(req,res)=>{
 
 
-try{
+        try{
 
 
-const user = new User(req.body);
+        const user = new User(req.body);
 
 
-await user.save();
+        await user.save();
 
 
-res.json({
+        res.json({
 
-message:"Register successful"
+        message:"Register successful"
 
-});
+        });
 
 
-}
-catch(error){
+        }
+        catch(error){
 
-res.status(500).json({
+        res.status(500).json({
 
-message:error.message
+        message:error.message
 
-});
+        });
 
-}
+        }
 
 
-});
+        });
 
 
 
 
 
-// LOGIN
+        // LOGIN
 
-router.post("/login", async(req,res)=>{
+        router.post("/login", async(req,res)=>{
 
 
-try{
+        try{
 
 
-const {
+        const {
 
-username,
+        username,
 
-password
+        password
 
-}=req.body;
+        }=req.body;
 
 
 
-const user = await User.findOne({
+        const user = await User.findOne({
 
-username:username
+        username:username
 
-});
+        });
 
 
 
-if(!user){
+        if(!user){
 
-return res.json({
+        return res.json({
 
-message:"User not found"
+        message:"User not found"
 
-});
+        });
 
-}
+        }
 
 
 
-if(user.password !== password){
+        if(user.password !== password){
 
 
-return res.json({
+        return res.json({
 
-message:"Wrong password"
+        message:"Wrong password"
 
-});
+        });
 
-}
+        }
 
 
 
-res.json({
+        res.json({
 
-message:"Login successful",
+        message:"Login successful",
 
-user:{
+        user:{
 
 
-id:user._id,
+        id:user._id,
 
-username:user.username
+        username:user.username
 
 
-}
+        }
 
 
-});
+        });
 
 
 
-}
+        }
 
-catch(error){
+        catch(error){
 
 
-console.log(error);
+        console.log(error);
 
 
-res.status(500).json({
+        res.status(500).json({
 
-message:error.message
+        message:error.message
 
-});
+        });
 
 
-}
+        }
 
 
-});
+        });
 
 
 
 
-module.exports = router;
+        module.exports = router;
