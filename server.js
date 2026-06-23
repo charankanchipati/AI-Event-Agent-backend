@@ -18,9 +18,24 @@ const app = express();
 
 // Middleware
 
+// app.use(cors({
+
+// origin:"*"
+
+// }));
+// app.use(cors())
 app.use(cors({
 
-origin:"*"
+origin:"*",
+
+methods:[
+"GET",
+"POST"
+],
+
+allowedHeaders:[
+"Content-Type"
+]
 
 }));
 
@@ -88,14 +103,15 @@ res.send(
 
 });
 
+app.get("/api/test",(req,res)=>{
 
+res.json({
 
+status:"API working"
 
+});
 
-
-
-
-
+});
 
 // =============================
 // GET ALL CHAT HISTORY SIDEBAR
@@ -103,7 +119,7 @@ res.send(
 
 
 app.get(
-"/api/chats/:userId",
+"/api/chats/:userId/:chatId",
 async(req,res)=>{
 
 
