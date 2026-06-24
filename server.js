@@ -257,10 +257,264 @@ error:"Cannot load chat"
 // =================================
 
 
+// app.post(
+
+// "/api/chat",
+
+// async(req,res)=>{
+
+
+// try{
+
+
+// const {
+
+// userId,
+
+// chatId,
+
+// message
+
+
+// }=req.body;
+
+
+
+// const text = message.toLowerCase();
+
+
+
+// if(text.includes("birthday")){
+
+// memory.event="Birthday";
+
+// }
+
+
+// if(text.includes("wedding")){
+
+// memory.event="Wedding";
+
+// }
+
+
+
+// let budget = message.match(/\d+/);
+
+
+// if(budget){
+
+// memory.budget = budget[0];
+
+// }
+
+
+
+
+// const previousMessages = await Chat.find({
+
+// userId:userId,
+
+// chatId:chatId
+
+// }).sort({
+
+// createdAt:1
+
+// });
+
+
+// const reply = await chatWithAI(
+
+// previousMessages,
+
+// message,
+
+// {},
+
+// [],
+
+// []
+
+// );
+
+
+
+
+
+
+// // check old chat
+
+
+// const existingChat = await Chat.findOne({
+
+// userId:userId,
+
+// chatId:chatId
+
+
+// });
+// let memory = {
+
+// event:"",
+// guests:"",
+// budget:"",
+// location:""
+
+// };
+
+
+// if(message.toLowerCase().includes("birthday")){
+// memory.event="Birthday";
+// }
+
+// if(message.toLowerCase().includes("wedding")){
+// memory.event="Wedding";
+// }
+
+
+// let budgetMatch = message.match(/\d+/);
+
+// if(budgetMatch){
+// memory.budget = budgetMatch[0];
+// }
+
+
+
+// // save user message
+
+
+// const oldChat = await Chat.findOne({
+
+// userId:userId,
+
+// chatId:chatId
+
+// });
+// let chatTitle = message.substring(0,40);
+
+
+// if(message.toLowerCase().includes("birthday")){
+//     chatTitle = "Birthday Event";
+// }
+
+// else if(message.toLowerCase().includes("wedding")){
+//     chatTitle = "Wedding Event";
+// }
+
+// else if(message.toLowerCase().includes("party")){
+//     chatTitle = "Party Event";
+// }
+
+// else if(message.toLowerCase().includes("conference")){
+//     chatTitle = "Conference Event";
+// }
+
+
+// await Chat.create({
+
+// userId:userId,
+
+// chatId:chatId,
+
+// // title:
+
+// // oldChat?.title || message.substring(0,40),
+// // title: message.substring(0,40),
+// title: chatTitle,
+
+
+// role:"user",
+
+// text:message
+
+// });
+
+
+
+
+
+
+
+// // save AI reply
+
+
+// await Chat.create({
+
+
+// userId:userId,
+
+
+// chatId:chatId,
+
+
+// title:
+
+// existingChat?.title ||
+
+// message.substring(0,40),
+
+
+// role:"assistant",
+
+
+// text:reply
+
+
+
+// });
+
+
+
+
+
+
+
+// res.json({
+
+// reply:reply,
+
+// memory:memory
+
+
+
+// });
+
+
+
+
+
+// }
+
+
+// catch(error){
+
+
+// console.log(
+
+// "Chat API Error",
+
+// error
+
+// );
+
+
+
+// res.status(500).json({
+
+// error:"AI service failed"
+
+// });
+
+
+// }
+
+
+
+// });
+
 app.post(
-
 "/api/chat",
-
 async(req,res)=>{
 
 
@@ -281,17 +535,82 @@ message
 
 
 
+// MEMORY
+
+// let memory = {
+
+// event:"Not selected",
+
+// guests:"Not selected",
+
+// budget:"Not selected",
+
+// location:"Not selected"
+
+// };
+
+
+
+// const text = message.toLowerCase();
+
+
+
+// if(text.includes("birthday")){
+
+// memory.event="Birthday";
+
+// }
+
+
+// if(text.includes("wedding")){
+
+// memory.event="Wedding";
+
+// }
+
+
+// if(text.includes("party")){
+
+// memory.event="Party";
+
+// }
+
+
+
+// let budgetMatch = message.match(/\d+/);
+
+
+// if(budgetMatch){
+
+// memory.budget = budgetMatch[0];
+
+// }
+
+
+
+
+// GET OLD CHAT HISTORY
+
+
 const previousMessages = await Chat.find({
 
 userId:userId,
 
 chatId:chatId
 
-}).sort({
+})
+
+.sort({
 
 createdAt:1
 
 });
+
+
+
+
+
+// AI RESPONSE
 
 
 const reply = await chatWithAI(
@@ -300,7 +619,7 @@ previousMessages,
 
 message,
 
-{},
+memory,
 
 [],
 
@@ -313,51 +632,44 @@ message,
 
 
 
-// check old chat
+// OLD CHAT TITLE
 
 
-const existingChat = await Chat.findOne({
-
-userId:userId,
-
-chatId:chatId
-
-
-});
-
-
-
-
-
-
-// save user message
-
-
-const oldChat = await Chat.findOne({
-
-userId:userId,
-
-chatId:chatId
-
-});
 let chatTitle = message.substring(0,40);
 
 
-if(message.toLowerCase().includes("birthday")){
-    chatTitle = "Birthday Event";
+
+if(text.includes("birthday")){
+
+chatTitle="Birthday Event";
+
 }
 
-else if(message.toLowerCase().includes("wedding")){
-    chatTitle = "Wedding Event";
+else if(text.includes("wedding")){
+
+chatTitle="Wedding Event";
+
 }
 
-else if(message.toLowerCase().includes("party")){
-    chatTitle = "Party Event";
+else if(text.includes("party")){
+
+chatTitle="Party Event";
+
 }
 
-else if(message.toLowerCase().includes("conference")){
-    chatTitle = "Conference Event";
+else if(text.includes("conference")){
+
+chatTitle="Conference Event";
+
 }
+
+
+
+
+
+
+
+// SAVE USER MESSAGE
 
 
 await Chat.create({
@@ -366,11 +678,7 @@ userId:userId,
 
 chatId:chatId,
 
-// title:
-
-// oldChat?.title || message.substring(0,40),
-// title: message.substring(0,40),
-title: chatTitle,
+title:chatTitle,
 
 role:"user",
 
@@ -383,32 +691,20 @@ text:message
 
 
 
-
-// save AI reply
+// SAVE AI MESSAGE
 
 
 await Chat.create({
 
-
 userId:userId,
-
 
 chatId:chatId,
 
-
-title:
-
-existingChat?.title ||
-
-message.substring(0,40),
-
+title:chatTitle,
 
 role:"assistant",
 
-
 text:reply
-
-
 
 });
 
@@ -416,19 +712,26 @@ text:reply
 
 
 
+
+
+
+// SEND RESPONSE
 
 
 res.json({
 
-reply:reply
+reply:reply,
+
+// memory:memory
+
 
 });
-
 
 
 
 
 }
+
 
 
 catch(error){
@@ -454,16 +757,7 @@ error:"AI service failed"
 }
 
 
-
 });
-
-
-
-
-
-
-
-
 
 
 
