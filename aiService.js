@@ -157,7 +157,7 @@ Include:
 
 
 Remember user preferences:
-${history}
+${conversation}
 
 
 
@@ -471,7 +471,7 @@ catch(error){
 
 console.log(
 "Gemini first try failed:",
-error.message
+error
 );
 
 
