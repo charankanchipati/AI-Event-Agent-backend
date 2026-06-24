@@ -340,7 +340,24 @@ userId:userId,
 chatId:chatId
 
 });
+let chatTitle = message.substring(0,40);
 
+
+if(message.toLowerCase().includes("birthday")){
+    chatTitle = "Birthday Event";
+}
+
+else if(message.toLowerCase().includes("wedding")){
+    chatTitle = "Wedding Event";
+}
+
+else if(message.toLowerCase().includes("party")){
+    chatTitle = "Party Event";
+}
+
+else if(message.toLowerCase().includes("conference")){
+    chatTitle = "Conference Event";
+}
 
 
 await Chat.create({
@@ -352,7 +369,8 @@ chatId:chatId,
 // title:
 
 // oldChat?.title || message.substring(0,40),
-title: message.substring(0,40),
+// title: message.substring(0,40),
+title: chatTitle,
 
 role:"user",
 
