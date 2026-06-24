@@ -141,8 +141,11 @@ history.push({
 
 chatId:chat.chatId,
 
+//  title://
+//  chat.title || "New Chat"//
+
 title:
-chat.title || "New Chat"
+chat.title || chat.text.substring(0,40)
 
 
 });
@@ -346,9 +349,10 @@ userId:userId,
 
 chatId:chatId,
 
-title:
+// title:
 
-oldChat?.title || message.substring(0,40),
+// oldChat?.title || message.substring(0,40),
+title: message.substring(0,40),
 
 role:"user",
 
