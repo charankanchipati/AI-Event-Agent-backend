@@ -419,7 +419,41 @@ memory,
 // OLD CHAT TITLE
 
 
-let chatTitle = message.substring(0,40);
+let chatTitle = "New Chat";
+
+
+const lowerMessage = message.toLowerCase();
+
+
+if(lowerMessage.includes("wedding")){
+
+chatTitle = "Wedding Event";
+
+}
+
+else if(lowerMessage.includes("birthday")){
+
+chatTitle = "Birthday Event";
+
+}
+
+else if(lowerMessage.includes("party")){
+
+chatTitle = "Party Event";
+
+}
+
+else if(lowerMessage.includes("conference")){
+
+chatTitle = "Conference Event";
+
+}
+
+else{
+
+chatTitle = message.substring(0,25) + "...";
+
+}
 
 
 
