@@ -1,5 +1,5 @@
 require("dotenv").config();
-
+console.log("THIS IS MY LATEST SERVER FILE");
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
