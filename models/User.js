@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     {
         type: String,
         required: true,
-        unique: true
+      e
     },
 
 
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     {
         type: String,
         required: true,
-        unique: true
+        
     },
 
 
