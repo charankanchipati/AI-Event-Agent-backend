@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const { chatWithAI } = require("./aiService");
 
 const authRoutes = require("./routes/auth");
-
+const PDFDocument = require("pdfkit");
 const Chat = require("./Chat");
 
 
@@ -256,262 +256,46 @@ error:"Cannot load chat"
 // AI CHAT
 // =================================
 
+app.post("/api/export-pdf",(req,res)=>{
 
-// app.post(
 
-// "/api/chat",
+const doc = new PDFDocument();
 
-// async(req,res)=>{
 
+res.setHeader(
+"Content-Type",
+"application/pdf"
+);
 
-// try{
 
+res.setHeader(
+"Content-Disposition",
+"attachment; filename=event-plan.pdf"
+);
 
-// const {
 
-// userId,
+doc.pipe(res);
 
-// chatId,
 
-// message
 
+doc.fontSize(20)
+.text("AI Event Planner");
 
-// }=req.body;
 
+doc.moveDown();
 
 
-// const text = message.toLowerCase();
+doc.fontSize(12)
+.text(req.body.content);
 
 
 
-// if(text.includes("birthday")){
+doc.end();
 
-// memory.event="Birthday";
 
-// }
 
+});
 
-// if(text.includes("wedding")){
-
-// memory.event="Wedding";
-
-// }
-
-
-
-// let budget = message.match(/\d+/);
-
-
-// if(budget){
-
-// memory.budget = budget[0];
-
-// }
-
-
-
-
-// const previousMessages = await Chat.find({
-
-// userId:userId,
-
-// chatId:chatId
-
-// }).sort({
-
-// createdAt:1
-
-// });
-
-
-// const reply = await chatWithAI(
-
-// previousMessages,
-
-// message,
-
-// {},
-
-// [],
-
-// []
-
-// );
-
-
-
-
-
-
-// // check old chat
-
-
-// const existingChat = await Chat.findOne({
-
-// userId:userId,
-
-// chatId:chatId
-
-
-// });
-// let memory = {
-
-// event:"",
-// guests:"",
-// budget:"",
-// location:""
-
-// };
-
-
-// if(message.toLowerCase().includes("birthday")){
-// memory.event="Birthday";
-// }
-
-// if(message.toLowerCase().includes("wedding")){
-// memory.event="Wedding";
-// }
-
-
-// let budgetMatch = message.match(/\d+/);
-
-// if(budgetMatch){
-// memory.budget = budgetMatch[0];
-// }
-
-
-
-// // save user message
-
-
-// const oldChat = await Chat.findOne({
-
-// userId:userId,
-
-// chatId:chatId
-
-// });
-// let chatTitle = message.substring(0,40);
-
-
-// if(message.toLowerCase().includes("birthday")){
-//     chatTitle = "Birthday Event";
-// }
-
-// else if(message.toLowerCase().includes("wedding")){
-//     chatTitle = "Wedding Event";
-// }
-
-// else if(message.toLowerCase().includes("party")){
-//     chatTitle = "Party Event";
-// }
-
-// else if(message.toLowerCase().includes("conference")){
-//     chatTitle = "Conference Event";
-// }
-
-
-// await Chat.create({
-
-// userId:userId,
-
-// chatId:chatId,
-
-// // title:
-
-// // oldChat?.title || message.substring(0,40),
-// // title: message.substring(0,40),
-// title: chatTitle,
-
-
-// role:"user",
-
-// text:message
-
-// });
-
-
-
-
-
-
-
-// // save AI reply
-
-
-// await Chat.create({
-
-
-// userId:userId,
-
-
-// chatId:chatId,
-
-
-// title:
-
-// existingChat?.title ||
-
-// message.substring(0,40),
-
-
-// role:"assistant",
-
-
-// text:reply
-
-
-
-// });
-
-
-
-
-
-
-
-// res.json({
-
-// reply:reply,
-
-// memory:memory
-
-
-
-// });
-
-
-
-
-
-// }
-
-
-// catch(error){
-
-
-// console.log(
-
-// "Chat API Error",
-
-// error
-
-// );
-
-
-
-// res.status(500).json({
-
-// error:"AI service failed"
-
-// });
-
-
-// }
-
-
-
-// });
 
 app.post(
 "/api/chat",
@@ -1142,7 +926,6 @@ console.log(
 // // =============================
 
 
-// app.post(
 // "/api/chat",
 // async(req,res)=>{
 
@@ -1273,51 +1056,7 @@ console.log(
 // // =============================
 
 
-// app.post(
 
-// "/api/chats",
-
-// async(req,res)=>{
-
-
-// try{
-
-
-// const chat = new Chat(req.body);
-
-
-
-// await chat.save();
-
-
-
-// res.json(chat);
-
-
-
-// }
-
-
-// catch(error){
-
-
-
-// console.log(error);
-
-
-
-// res.status(500).json({
-
-// error:"Chat save failed"
-
-// });
-
-
-// }
-
-
-
-// });
 
 
 
