@@ -278,9 +278,22 @@ message
 
 
 
+const previousMessages = await Chat.find({
+
+userId:userId,
+
+chatId:chatId
+
+}).sort({
+
+createdAt:1
+
+});
+
+
 const reply = await chatWithAI(
 
-[],
+previousMessages,
 
 message,
 
@@ -289,7 +302,6 @@ message,
 [],
 
 []
-
 
 );
 
