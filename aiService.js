@@ -471,7 +471,7 @@ catch(error){
 
 console.log(
 "Gemini first try failed:",
-error
+error.message
 );
 
 
