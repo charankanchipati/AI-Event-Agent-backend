@@ -8,6 +8,7 @@ const today = new Date().toLocaleDateString();
 const currentYear = new Date().getFullYear();
 // const currentTime =
 // currentDateTime.toLocaleTimeString("en-IN");
+const currentDateTime = new Date().toString();
 
 const genAI =
 new GoogleGenerativeAI(
@@ -138,7 +139,7 @@ ${today}
 
 Current Time:
 
-${currentTime}
+${currentDateTime}
 
 Your job:
 
