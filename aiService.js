@@ -39,7 +39,7 @@ let conversation="";
 
 
 
-history.forEach(msg=>{
+(history || []).forEach(msg=>{
 
 
 conversation += `
@@ -277,7 +277,7 @@ ${message}
 
 User memory:
 
-${JSON.stringify(savedMemory)}
+${JSON.stringify(savedMemory || {})}
 
 
 
@@ -289,7 +289,7 @@ ${JSON.stringify(weather)}
 
 Venues:
 
-${venues.join(", ")}
+${venues?.join(", ") || ""}
 
 
 
