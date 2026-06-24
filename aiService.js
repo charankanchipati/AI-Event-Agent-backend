@@ -14,7 +14,10 @@ const genAI =
 new GoogleGenerativeAI(
 process.env.GEMINI_API_KEY
 );
-
+console.log(
+"GEMINI KEY:",
+process.env.GEMINI_API_KEY ? "FOUND" : "MISSING"
+);
 
 
 async function chatWithAI(history, message,savedMemory,
@@ -471,7 +474,7 @@ catch(error){
 
 console.log(
 "Gemini first try failed:",
-error.message
+error
 );
 
 
@@ -513,14 +516,12 @@ catch(error){
 
 
 console.log(
-"Gemini Error:",
-error.message
+"Gemini Error FULL:",
+JSON.stringify(error, null, 2)
 );
 
 
-
 return "AI service unavailable";
-
 
 }
 
