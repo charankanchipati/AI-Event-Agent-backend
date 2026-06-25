@@ -319,63 +319,6 @@ message
 
 
 
-// MEMORY
-
-// let memory = {
-
-// event:"Not selected",
-
-// guests:"Not selected",
-
-// budget:"Not selected",
-
-// location:"Not selected"
-
-// };
-
-
-
-// const text = message.toLowerCase();
-
-
-
-// if(text.includes("birthday")){
-
-// memory.event="Birthday";
-
-// }
-
-
-// if(text.includes("wedding")){
-
-// memory.event="Wedding";
-
-// }
-
-
-// if(text.includes("party")){
-
-// memory.event="Party";
-
-// }
-
-
-
-// let budgetMatch = message.match(/\d+/);
-
-
-// if(budgetMatch){
-
-// memory.budget = budgetMatch[0];
-
-// }
-
-
-
-
-// GET OLD CHAT HISTORY
-
-
 const previousMessages = await Chat.find({
 
 userId:userId,
@@ -403,7 +346,7 @@ previousMessages,
 
 message,
 
-memory,
+
 
 [],
 
@@ -540,7 +483,7 @@ res.json({
 
 reply:reply,
 
-// memory:memory
+
 
 
 });
